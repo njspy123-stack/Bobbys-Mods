@@ -1,0 +1,113 @@
+using System;
+using BobbysMods;
+
+int checks = 0;
+void Check(bool condition, string description)
+{
+    if (!condition) throw new Exception(description);
+    checks++; Console.WriteLine("PASS " + description);
+}
+Check(!FreezeState.RoomAllowed(false, true, "MODDED_CASUAL"), "Disconnected state is locked");
+Check(!FreezeState.RoomAllowed(true, false, "MODDED_CASUAL"), "Public modded room is locked");
+Check(!FreezeState.RoomAllowed(true, true, "CASUAL"), "Ordinary private room is locked");
+Check(!FreezeState.RoomAllowed(true, true, null), "Unknown room mode is locked");
+Check(!FreezeState.RoomAllowed(true, true, ""), "Empty room mode is locked");
+Check(FreezeState.RoomAllowed(true, true, "MODDED_CASUAL"), "Private modded room is allowed");
+Check(FreezeState.RoomAllowed(true, true, "modded_infection"), "Modded mode matching ignores case");
+var first = new AvatarPose { Position = 100, HeadRotation = 11, BodyRotation = 12, Rotation = 13, LeftHand = 14, RightHand = 15, HandPosition = 16, LeftArm = 17, RightArm = 18, UsingNewIK = true };
+var moved = new AvatarPose { Position = 200, HeadRotation = 21, BodyRotation = 22, Rotation = 23, LeftHand = 24, RightHand = 25, HandPosition = 26, LeftArm = 27, RightArm = 28, UsingNewIK = false };
+var state = new FreezeState();
+var pose = moved; state.Apply(ref pose);
+Check(pose.Equals(moved), "Disabled freeze preserves live pose");
+state.Enable(); pose = first; state.Apply(ref pose);
+Check(pose.Equals(first), "First outgoing pose is captured unchanged");
+pose = moved; state.Apply(ref pose);
+Check(pose.Equals(first), "All outgoing pose fields stay frozen during movement");
+Check(moved.Position == 200, "Live source pose is not mutated");
+state.Disable(); pose = moved; state.Apply(ref pose);
+Check(pose.Equals(moved) && !state.Enabled, "Disable immediately restores live pose");
+state.Enable(); pose = moved; state.Apply(ref pose); pose = first; state.Apply(ref pose);
+Check(pose.Equals(moved), "Re-enable captures a fresh position instead of stale state");
+state.Disable();
+Check(!state.Enabled, "Cleanup clears freeze state");
+Check(FreezeState.RoomAllowed(true, false, "CASUAL", true), "All-lobbies setting permits public rooms");
+Check(FreezeState.RoomAllowed(true, true, "CASUAL", true), "All-lobbies setting permits ordinary private rooms");
+Check(!FreezeState.RoomAllowed(false, false, null, true), "All-lobbies setting still requires a joined room");
+Check(!FreezeState.RoomAllowed(true, false, "MODDED_CASUAL", false), "False setting blocks public rooms");
+Check(FreezeState.RoomAllowed(true, true, "MODDED_CASUAL", false), "False setting permits private modded rooms");
+Check(MenuTouch.Hit(0,146,0)==2, "Pointer selects freeze row");
+Check(MenuTouch.Hit(0,-82,0)==6, "Pointer selects Smart Arms row");
+Check(MenuTouch.Hit(0,146,20)==-1, "Pointer must touch panel depth");
+Check(MenuTouch.Hit(200,146,0)==-1, "Pointer outside panel does not click");
+var touch = new MenuTouch();
+Check(touch.Enter(6,1)==6, "New pointer contact activates row");
+Check(touch.Enter(6,2)==-1, "Holding contact does not toggle repeatedly");
+touch.Release();
+Check(touch.Enter(6,2)==6, "Released pointer can click again");
+var key=new FreezeKey();
+Check(!key.Respond(true),"B ignored before freeze keybind is armed");
+key.Toggle();Check(key.Armed && key.Respond(true),"Menu arms B without freezing by itself");
+Check(!key.Respond(false),"Armed feature waits for a key press");
+key.Reset();Check(!key.Armed,"Disable All clears freeze keybind");
+Check(!ModRules.AnalogPressed(.3f) && ModRules.AnalogPressed(.7f),"Analog grip threshold recognizes deliberate presses");
+Check(ModRules.SolidLayer(1<<9)==9,"Platform uses the game's enabled collision layer");
+Check(ModRules.SolidLayer(0)==-1,"Empty collision mask is rejected");
+Check(ModRules.SolidLayer((1<<2)|(1<<8))==8,"Platform never uses Ignore Raycast layer");
+Check(ModRules.MovementMask(1<<9,1)==(1<<9),"Active movement collision mask takes priority over default layers");
+Check(ModRules.MovementMask(0,1<<8)==(1<<8),"Empty movement mask uses game fallback");
+var profiles=new LobbyProfiles();
+var roomA=LobbyProfiles.Key("ROOM A","CASUAL"); var roomB=LobbyProfiles.Key("ROOM B","CASUAL");
+Check(profiles.Get(roomA)==0,"New lobby starts with every mod disabled");
+profiles.Set(roomA,1|8|16);profiles.Set(roomB,2|4);
+Check(profiles.Get(roomA)==25 && profiles.Get(roomB)==6,"Lobbies retain separate enabled selections");
+var restored=new LobbyProfiles();restored.Read(profiles.Write());
+Check(restored.Get(roomA)==25 && restored.Get(roomB)==6,"Selections survive save/load round trip");
+Check(LobbyProfiles.Key("A/B\nC","CASUAL")!=LobbyProfiles.Key("A/B\nC","MODDED"),"Room and game mode have separate profiles");
+profiles.Set(roomA,0);Check(profiles.Get(roomA)==0,"Disable All replaces that lobby's saved selection");
+profiles.Set(roomA,255);Check(profiles.Get(roomA)==255,"Profile stores feature selections only");
+restored.Read("broken\nignored=999\nnegative=-1\n");Check(restored.Get("ignored")==0 && restored.Get("negative")==0,"Invalid profiles do not enable features");
+var restoredKey=new FreezeKey();restoredKey.SetArmed(true);Check(restoredKey.Armed && !restoredKey.Respond(false),"Restoring freeze permission waits for B instead of auto-freezing");
+Check(ModRules.AvatarBoundsValid(2,1),"Normal-size frozen body accepted");
+Check(!ModRules.AvatarBoundsValid(100,1),"Oversized frozen artifact suppressed");
+Check(!ModRules.AvatarBoundsValid(float.NaN,1),"Invalid frozen bounds suppressed");
+Check(ModRules.GravityCompensation(.5f)==.5f,"Half gravity compensates half of normal force");
+Check(ModRules.GravityCompensation(1f)==0,"Normal gravity adds no force");
+Check(ModRules.FramesPerSecond(90,1)==90,"FPS counter uses elapsed unscaled time");
+Check(ModRules.FramesPerSecond(0,0)==0,"FPS counter tolerates initial empty sample");
+Check(ModRules.FeatureIndex(0,2)==0 && ModRules.FeatureIndex(1,2)==5,"Menu pages map to distinct features");
+Check(ModRules.FeatureIndex(1,5)==8,"Reload action is on page two");
+profiles.Set(roomA,32|64|128);var updated=new LobbyProfiles();updated.Read(profiles.Write());
+Check(updated.Get(roomA)==224,"New feature selections save and restore");
+var search=new ModSearch();var matches=new int[8];
+Check(search.Filter(matches)==8,"Empty search lists all installed mods");
+foreach(char c in "ghost")search.Press(c.ToString());
+Check(search.Filter(matches)==1 && matches[0]==0,"Ghost alias finds avatar freeze");
+search.Press("CLEAR");foreach(char c in "TP")search.Press(c.ToString());
+Check(search.Filter(matches)==1 && matches[0]==3,"TP alias selects the teleport feature ID");
+search.Press("CLEAR");foreach(char c in "platform")search.Press(c.ToString());
+Check(search.Filter(matches)==2 && matches[0]==1 && matches[1]==2,"Platform search keeps grip and trigger results distinct");
+search.Press("CLEAR");foreach(char c in "low grav")search.Press(c==' '?"SPACE":c.ToString());
+Check(search.Filter(matches)==1 && matches[0]==5,"Multiword search matches all terms");
+search.Press("CLEAR");foreach(char c in "unavailable")search.Press(c.ToString());
+Check(search.Filter(matches)==0,"Unknown query gives no matching mods");
+search.Press("CLEAR");search.Press("BACK");Check(search.Query=="","Backspace on empty query is safe");
+search.Press("A");search.Press("B");search.Press("BACK");Check(search.Query=="A","Backspace removes one letter");
+Check(search.Press("CLOSE") && search.Query=="A","Close button is distinct from query editing");
+Check(!search.Press("X") && search.Query=="AX","Letter X does not close the keyboard");
+search.Press("CLEAR");for(int i=0;i<50;i++)search.Press("A");Check(search.Query.Length==32,"Search text has a fixed length limit");
+search.Press("CLEAR");search.Press("INVALID");Check(search.Query=="","Unknown keyboard command is ignored");
+Check(SearchKeyboardLayout.Keys.Length==30,"Keyboard has alphabet and four action keys");
+Check(SearchKeyboardLayout.Hit(-288,70,0)==0,"Touch position selects Q key");
+int closeKey=SearchKeyboardLayout.Hit(230,-88,0);
+Check(closeKey>=0 && SearchKeyboardLayout.Keys[closeKey].Value=="CLOSE","Dedicated X Close key hit maps correctly");
+Check(SearchKeyboardLayout.Hit(230,-88,40)==-1,"Keyboard ignores a hand outside its touch depth");
+Check(MenuTouch.Hit(0,203,0)==1,"Top menu search bar accepts touch");
+Console.WriteLine(checks + " checks passed");
+
+
+
+
+
+
+
+
