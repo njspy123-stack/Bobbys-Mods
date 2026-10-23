@@ -1,6 +1,6 @@
 # Ghost-themed ideas — researched 22 October 2026
 
-These are ideas for later features, not additional installed mods in version 0.6.0. No third-party DLLs or assets were downloaded.
+These are ideas for later features, not additional installed mods in version 0.7.0. No third-party DLLs or assets were downloaded.
 
 | Idea | Reference | Visibility / implementation notes |
 | --- | --- | --- |

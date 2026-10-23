@@ -2,7 +2,9 @@
 
 Windows Steam PC VR Gorilla Tag menu. Requires BepInEx 5 and your own installed game. Standalone Quest is not supported. No Utilla dependency.
 
-## Install
+## Download and install
+Download [Bobbys Mods 0.7.0](https://github.com/njspy123-stack/Bobbys-Mods/releases/tag/v0.7.0): choose BobbysMods.dll and config.txt, or BobbysMods-0.7.0-beta.zip for the installation folders. The automatic Source code ZIP is for developers.
+
 Close Gorilla Tag. Put BobbysMods.dll directly in BepInEx/plugins. Put config.txt in BepInEx/plugins/BobbysMods/config.txt. Preserve your existing config when updating and add new keys from the template. Keep one DLL only; remove the historical BobbysWorldScale.dll add-on. Start through Steam in PC VR and press left X. Never double-click the DLL.
 
 The public 0.7.0 beta includes the categorized menu and current fixes. Both Noclip buttons are marked (matinence) while repairs continue.
@@ -69,14 +71,14 @@ No game assemblies, third-party mod code or assets are included. Features/catego
 ## Troubleshooting
 Report version, action and exception from BepInEx/LogOutput.log or Gorilla Tag Player.log. Do not include room profiles or account identifiers. To uninstall, close the game, remove BepInEx/plugins/BobbysMods.dll and optionally its configuration directory.
 
-## 0.8.1 fixes under test
+## Controller-held menu and headset display
 The normal menu is now controller-relative: it follows both the left hand position and wrist rotation, with a handle under the panel. It no longer rotates itself to face the headset. menu_grip_x/y/z and menu_grip_pitch/yaw/roll adjust how it sits in your grip; menu_scale controls its size. Search keeps its stationary keyboard placement.
 
-HUD placement now uses viewing angles rather than desktop camera aspect ratio. Defaults are near the upper left: hud_angle_x=-12, hud_angle_y=10, hud_width_degrees=18. These replace the old hud_x/y placement keys. Use negative x for left or positive x for right, with 0 centered. hud_scale still adjusts size. Defaults aim to keep the panel within both eyes' comfortable central view; headset confirmation is pending.
+HUD placement now uses viewing angles rather than desktop camera aspect ratio. Defaults are near the upper left: hud_angle_x=-12, hud_angle_y=10, hud_width_degrees=18. These replace the old hud_x/y placement keys. Use negative x for left or positive x for right, with 0 centered. hud_scale still adjusts size. Defaults aim to keep the panel within both eyes' comfortable central view; adjust the angles and width for your headset if needed.
 
 Movement reads the game's controller poller thumbstick values and runs after the game's physics update. Fly now moves forward while right A is held when the stick is neutral (fly_auto_forward=true); set false for stick-only movement. Grip Noclip/Noclip Fly and Fly may operate while the hand menu is open; search pauses them. Iron Man controls and thrust settings are unchanged. Noclip also suppresses local GTPlayer sphere/raycast collision results while active, without changing map geometry or other players. No Finger Movement now hooks the current VRRig.PostTick method rather than the absent LateUpdate method.
 
-94 logic checks pass and the DLL compiles; these checks do not establish actual headset behavior. GitHub remains on 0.6.0.
+94 automated logic checks pass and the release build compiles cleanly. The user reports gameplay testing complete. Both Noclip features remain under maintenance.
 
-## 0.8.2 Noclip adjustment
-Grip Noclip now clears local Rigidbody linear and angular momentum each physics step while its grip is held. It does not issue movement requests. Collision remains suspended; room-scale headset/controller tracking remains live. Noclip Fly speed defaults to 7 m/s with acceleration 20 m/s²; edit noclip_fly_speed (0.2–15) and noclip_acceleration (1–50) to customize. Neutral input stops flight immediately. Headset validation remains pending.
+## Noclip maintenance status
+Grip Noclip now clears local Rigidbody linear and angular momentum each physics step while its grip is held. It does not issue movement requests. Collision remains suspended; room-scale headset/controller tracking remains live. Noclip Fly speed defaults to 7 m/s with acceleration 20 m/s²; edit noclip_fly_speed (0.2–15) and noclip_acceleration (1–50) to customize. Neutral input stops flight immediately. Both Noclip buttons are labeled (matinence); their behavior remains a known issue.
