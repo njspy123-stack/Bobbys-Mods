@@ -24,14 +24,22 @@ Press left X to open/close the menu. Touch a row using the single cyan right-con
 
 Gameplay features must be enabled in the menu before their keybinds operate. Saved selections restore separately for each room name and game mode. A new lobby starts off; restoring Freeze only arms B.
 
-## Install
+## Download and install
 
-Requires PC VR Gorilla Tag with BepInEx 5. Put one BobbysMods.dll in Gorilla Tag/BepInEx/plugins. Start the game once with config.txt in BepInEx/plugins/BobbysMods/config.txt.
+Download **BobbysMods.dll** and **config.txt** from the [0.6.0 beta release](https://github.com/njspy123-stack/Bobbys-Mods/releases/tag/v0.6.0-beta). Choose the DLL under Assets, not the automatically generated Source code ZIP. Downloads require repository access while this project is private.
 
-On this PC, the current DLL and active configuration are installed under:
-C:/Program Files (x86)/Steam/steamapps/common/Gorilla Tag/BepInEx/plugins
+Requires Windows PC VR Gorilla Tag (Steam), a VR headset/controllers, and BepInEx 5 already installed. This DLL does not run by double-clicking and does not install on standalone Quest. Utilla is not required. Game updates may break compatibility.
 
-Close the game before replacing the DLL. Remove the historical BobbysWorldScale.dll add-on to avoid running two arm extensions. Utilla is not required by the current build.
+1. Close Gorilla Tag.
+2. In Steam, right-click Gorilla Tag, select Manage, then Browse local files.
+3. Copy BobbysMods.dll directly into BepInEx/plugins (keep only one copy).
+4. Create BepInEx/plugins/BobbysMods and copy config.txt into it. When updating, keep your existing config unless you want to reset your preferences.
+5. Remove the old BobbysWorldScale.dll add-on if present, then start the game through Steam in PC VR.
+6. Press left X to open the menu. Enable a feature before using its controller binding. A new lobby starts with features off.
+
+For an easier install, the release also includes BobbysMods-0.6.0-beta.zip. Extract its contents into your Gorilla Tag installation folder; the archive already has the BepInEx/plugins layout. Back up your config before overwriting it.
+
+This is a development beta. Automated checks pass, but headset performance and multiplayer appearance still need validation. See TESTING.md. No setting guarantees avoiding a ban; use agreed private modded sessions for testing.
 
 ## Configuration
 

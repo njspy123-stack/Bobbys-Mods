@@ -1,9 +1,9 @@
-# Test record — 0.5.0 beta
+# Test record — 0.6.0 beta
 
 ## Completed
 
 - Build against the installed Gorilla Tag/Unity 6 libraries: PASS, zero warnings/errors.
-- Automated tests: 54 PASS.
+- Automated tests: 71 PASS (including search and keyboard logic).
 - Covered: room permissions, input gating, freeze-state capture/restore, pointer hit/debounce, layer selection, independent saved profiles and parsing, feature-page mapping, gravity compensation math, FPS sampling math, frozen-body size guards.
 - The installed DLL checksum is checked when copied into the game.
 
@@ -13,7 +13,7 @@ Unity shader transparency, actual BakeMesh output, hand collision physics, Rigid
 
 ## Headset checklist before a stable GitHub release
 
-1. Confirm version 0.5.0 loads; open/close menu repeatedly and switch pages. Measure FPS with and without the menu. No repeated canvas toggling should occur.
+1. Confirm version 0.6.0 loads; open/close menu repeatedly and switch pages. Measure FPS with and without the menu. No repeated canvas toggling should occur.
 2. Freeze: arm B, press it, move away and inspect the normal-size frozen copy. Check for skeleton/helper artifacts. Confirm the moving green appearance and B restore. Have a friend separately confirm their network view.
 3. Platforms: verify both grips and triggers, visible hands, transparency, solid support and release cleanup. Try with/without Smart Arms. Test narrow environments.
 4. Teleport: valid flat ground, invalid steep target, blocked destination, local hand filtering, trigger-platform conflict and stable movement after arrival.
