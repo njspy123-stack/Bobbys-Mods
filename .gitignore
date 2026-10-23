@@ -9,3 +9,7 @@ dependencies/
 **/lobby-settings.txt
 **/lobby-settings.txt.tmp
 *.user
+
+.security-tools/
+.security-scans/
+*.sarif
