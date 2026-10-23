@@ -1,113 +1,82 @@
-# Bobbys Mods 0.6.0 beta
+# Bobbys Mods 0.7.0 beta
 
-PC VR Gorilla Tag neon menu with per-lobby saved selections. This is a development build; headset/multiplayer validation is incomplete.
+Windows Steam PC VR Gorilla Tag menu. Requires BepInEx 5 and your own installed game. Standalone Quest is not supported. No Utilla dependency.
 
-## Features and controls
+## Install
+Close Gorilla Tag. Put BobbysMods.dll directly in BepInEx/plugins. Put config.txt in BepInEx/plugins/BobbysMods/config.txt. Preserve your existing config when updating and add new keys from the template. Keep one DLL only; remove the historical BobbysWorldScale.dll add-on. Start through Steam in PC VR and press left X. Never double-click the DLL.
 
-Press left X to open/close the menu. Touch a row using the single cyan right-controller pointer. Next Page/Previous Page switches pages; Disable All disables and saves all features off for that lobby.
+The public 0.7.0 beta includes the categorized menu and current fixes. Both Noclip buttons are marked (matinence) while repairs continue.
 
-### Page one
+## Menu
+Home has Movement, Platforms, Avatar, Displays and Settings categories. Touch with the right pointer. Movement has two pages; other categories fit one page. Use the separate < Previous and Next > arrow buttons, which wrap within the current category. Categories returns home. Search covers all 18 feature toggles across categories. Both hands can type and select search results. X CLOSE closes search and the menu. The neon menu has raised 3D bezels without physics colliders.
 
-- Freeze Keybind: arms/disarms right B. B freezes/restores the outgoing pose. A local baked main-skin snapshot remains behind while your live avatar is tinted translucent green.
-- Grip Platforms: hold either grip for that hand's floating platform.
-- Trigger Platforms: hold either trigger. Teleport takes priority when using the same input.
-- Teleport: right-hand aim line stays visible while enabled; right trigger teleports to an open flat target.
-- Smart Arms: 1.5x estimated shoulder-to-controller reach with normal player size.
+## Features
 
-### Page two
+| Category | Features and controls |
+| --- | --- |
+| Movement | Teleport (right trigger and constant aim), Low Gravity, Grip Noclip, Noclip Fly, Fly, Speed Boost, High Jump, Zero Gravity, Iron Man, Slide Control |
+| Platforms | Grip Platforms; Trigger Platforms. Teleport wins a shared trigger binding. |
+| Avatar | Freeze Keybind (arm then right B freezes/restores); Smart Arms; No Finger Movement |
+| Displays | FPS Display; HUD Status; Session Timer |
+| Settings | Reload Config; Disable All; Build / Test Info |
 
-- Low Gravity: compensates half of normal Rigidbody gravity on the local player by default. It does not change global Physics.gravity. This may interact with the game's other movement modes and needs testing.
-- Checkpoint Keybinds: enable, press right A to save current head position, then left Y to return if the destination is clear and has ground. The checkpoint is cleared on scene/lobby changes or disabling the feature. Only permission to use it is saved; coordinates are not persisted.
-- FPS Display: shows an average FPS sample in the menu footer, refreshed twice per second. This is not a GPU profiler.
-- Reload Config: reloads settings and disables/saves the current lobby features off.
-- Build / Test Info: shows the development build status.
+Enable features in the menu before using their bindings. Freeze is only the original manual keybind. Menu Ghost, Pulse Ghost, Hold-to-Ghost, Spectral Trails, Orbiting Wisps and Checkpoint have been removed.
 
-Gameplay features must be enabled in the menu before their keybinds operate. Saved selections restore separately for each room name and game mode. A new lobby starts off; restoring Freeze only arms B.
+### Noclip
+Grip Noclip suspends the local movement collision mask and enabled non-trigger colliders under your player while noclip_button (default right grip) is held. It makes no movement/teleport requests while active. noclip_hover=true cancels vertical velocity and disables gravity while held to prevent falling through the floor; false preserves gravity. Releasing, opening the menu, disabling or leaving restores the original collision and gravity state. If released inside geometry, the player returns to the last clear position. Colliders belonging to the map and other players are not changed.
 
-## Download and install
+Noclip Fly uses the same grip, with the left thumbstick controlling forward/back/strafe relative to the right controller. Left trigger adds up, left grip adds down. Neutral input stops, acceleration is smoothed. noclip_fly_auto_forward=false is the default. Disable overlapping grip platforms/Iron Man or customize the bindings. Noclip Fly takes priority over Grip Noclip when both are enabled.
 
-Download **BobbysMods.dll** and **config.txt** from the [0.6.0 beta release](https://github.com/njspy123-stack/Bobbys-Mods/releases/tag/v0.6.0-beta). Choose the DLL under Assets, not the automatically generated Source code ZIP. Downloads require repository access while this project is private.
+### New movement features
+Fly: hold fly_button (right A), use left thumbstick for headset-directed movement, left trigger up and left grip down. Keeps normal collisions. Speed Boost adjusts the player's jump multiplier, High Jump adjusts maximum jump speed, and Slide Control adjusts steering on slippery surfaces. Original values restore on disable/lobby change. Zero Gravity counteracts local Rigidbody gravity; global gravity is unchanged. Iron Man adds thrust opposite each controller's up axis while its grip is held. These features interact with existing game movement and require in-game testing.
 
-Requires Windows PC VR Gorilla Tag (Steam), a VR headset/controllers, and BepInEx 5 already installed. This DLL does not run by double-clicking and does not install on standalone Quest. Utilla is not required. Game updates may break compatibility.
+### No Finger Movement
+Captures finger-bone rotations and the six packed finger-bend digits on the local avatar. Held-item flag digits remain live; controller tracking and grip/trigger gameplay inputs remain active. Disable to resume animation. This does not freeze head, body or hand positions. Remote appearance is unverified and must be checked with a consenting second player.
 
-1. Close Gorilla Tag.
-2. In Steam, right-click Gorilla Tag, select Manage, then Browse local files.
-3. Copy BobbysMods.dll directly into BepInEx/plugins (keep only one copy).
-4. Create BepInEx/plugins/BobbysMods and copy config.txt into it. When updating, keep your existing config unless you want to reset your preferences.
-5. Remove the old BobbysWorldScale.dll add-on if present, then start the game through Steam in PC VR.
-6. Press left X to open the menu. Enable a feature before using its controller binding. A new lobby starts with features off.
+## Config
+The active file is BepInEx/plugins/BobbysMods/config.txt. Reload Config applies edits and disables all features; re-enable the ones you want. Common new settings:
 
-For an easier install, the release also includes BobbysMods-0.6.0-beta.zip. Extract its contents into your Gorilla Tag installation folder; the archive already has the BepInEx/plugins layout. Back up your config before overwriting it.
+    noclip_hover=true
+    noclip_button=right_grip
+    noclip_fly_speed=3
+    noclip_deadzone=0.18
+    noclip_acceleration=8
+    noclip_fly_auto_forward=false
+    fly_button=right_a
+    fly_speed=3
+    fly_acceleration=10
+    speed_boost_multiplier=1.3
+    high_jump_multiplier=1.4
+    slide_control=1
+    ironman_acceleration=8
 
-This is a development beta. Automated checks pass, but headset performance and multiplayer appearance still need validation. See TESTING.md. No setting guarantees avoiding a ban; use agreed private modded sessions for testing.
+Buttons: left_x, left_y, right_a, right_b, left_grip, right_grip, left_trigger, right_trigger, left_stick, right_stick, none. Avoid overlapping bindings for unrelated features.
 
-## Configuration
+HUD FPS/status/timer are attached to the headset view. Configure hud_enabled, hud_x/hud_y (0.5=center), hud_distance, hud_scale, hud_font_size, hud_colour, hud_show_mode, hud_show_active_count and hud_show_freeze. Default x=0.76/y=0.75 places the panel toward the top right. Session Timer counts plugin runtime, not real-world time or FPS.
 
-Edit the active config.txt, not the project template, then use Reload Config on page two. Per-lobby selections are stored separately in lobby-settings.txt. Its encoded room keys are not anonymous; do not publish that file.
+save_per_lobby=false carries selections between eligible lobbies and game restarts; true uses independent room/mode profiles. Only feature permissions restore, never active frozen poses. Old removed flags are discarded during version migration. Never upload lobby-settings.txt: its room keys are encoded, not anonymized. Disable All persists zero selections.
 
-work_in_all_lobbies=true permits features in any joined room (existing default).
-work_in_all_lobbies=false permits only private MODDED rooms.
-No setting guarantees avoiding a ban. The mod does not bypass game protections.
+work_in_all_lobbies=true preserves the existing setting. false limits gameplay mods to private MODDED rooms. No setting guarantees avoiding a ban; test with consenting players.
 
-New settings:
-
-    platform_opacity=0.25
-    gravity_multiplier=0.5
-    checkpoint_save_button=right_a
-    checkpoint_return_button=left_y
-
-Existing settings control menu colours, platform dimensions, teleport limits, input bindings, ghost_colour, ghost_opacity and pointer_colour. Low gravity is clamped to 10%-100% of normal gravity. Platform opacity is clamped to 5%-75%. Use distinct inputs for unrelated actions.
-
-## Bug fixes in 0.5.0
-
-The frozen snapshot now bakes only VRRig.mainSkin, instead of every skinned helper mesh. Vertices are transformed once into an unscaled world-aligned root. Oversized/invalid snapshots are suppressed rather than displayed. This addresses likely causes of the reported giant skeleton; actual appearance still needs headset verification.
-
-Platforms use a translucent unlit material, cast no shadows, and are placed below the hand follower with collision-radius clearance. This is intended to keep your hands visible; in-headset confirmation is still pending.
-
-The menu has two pages instead of an increasingly tall panel. It changes visibility only on transitions and does not rebuild the canvas every frame.
-
-## Build and tests
-
-Install a .NET SDK and use your own legally installed Gorilla Tag/BepInEx files. No game assemblies are included.
+## Build and verification
+Use your legally installed game assemblies with a .NET SDK:
 
     ./Build.ps1 -GamePath 'YOUR GORILLA TAG FOLDER'
-
     dotnet run --project tests/FreezeTests.csproj --configuration Release
 
-If this working folder has a local .dotnet SDK, Build.ps1 uses it. Otherwise it uses the installed dotnet command. The build does not automatically update the installed game DLL.
+No game assemblies, third-party mod code or assets are included. Features/category ideas were selected from ii community menu feature labels, then implemented independently. See RESEARCH.md. Automated tests do not prove Unity physics, networking, VR comfort or frame rate. See TESTING.md before describing this beta as stable.
 
-Validation: zero build warnings/errors and 71 automated logic checks. See TESTING.md for coverage and remaining headset checks. Passing these checks does not establish release stability or that every feature works in VR.
+## Troubleshooting
+Report version, action and exception from BepInEx/LogOutput.log or Gorilla Tag Player.log. Do not include room profiles or account identifiers. To uninstall, close the game, remove BepInEx/plugins/BobbysMods.dll and optionally its configuration directory.
 
-## Credits and research
+## 0.8.1 fixes under test
+The normal menu is now controller-relative: it follows both the left hand position and wrist rotation, with a handle under the panel. It no longer rotates itself to face the headset. menu_grip_x/y/z and menu_grip_pitch/yaw/roll adjust how it sits in your grip; menu_scale controls its size. Search keeps its stationary keyboard placement.
 
-Low Gravity and Checkpoint were selected after reviewing KyleTheScientist/Bark's documented feature descriptions. These are fresh implementations for Bobbys Mods; no Bark code, assets or DLLs are included. See RESEARCH.md. The FPS display is an original local diagnostic addition.
+HUD placement now uses viewing angles rather than desktop camera aspect ratio. Defaults are near the upper left: hud_angle_x=-12, hud_angle_y=10, hud_width_degrees=18. These replace the old hud_x/y placement keys. Use negative x for left or positive x for right, with 0 centered. hud_scale still adjusts size. Defaults aim to keep the panel within both eyes' comfortable central view; headset confirmation is pending.
 
-## Repository contents
+Movement reads the game's controller poller thumbstick values and runs after the game's physics update. Fly now moves forward while right A is held when the stick is neutral (fly_auto_forward=true); set false for stick-only movement. Grip Noclip/Noclip Fly and Fly may operate while the hand menu is open; search pauses them. Iron Man controls and thrust settings are unchanged. Noclip also suppresses local GTPlayer sphere/raycast collision results while active, without changing map geometry or other players. No Finger Movement now hooks the current VRRig.PostTick method rather than the absent LateUpdate method.
 
-This repository contains the mod source with tests, config template and documentation. It excludes game DLLs, third-party binary dependencies, local SDKs, backups and saved room profiles. Select a project license and finish the headset checklist before publishing a stable release.
+94 logic checks pass and the DLL compiles; these checks do not establish actual headset behavior. GitHub remains on 0.6.0.
 
-## Troubleshooting and uninstall
-
-Logs: Gorilla Tag/BepInEx/LogOutput.log and your Windows AppData/LocalLow/Another Axiom/Gorilla Tag/Player.log. Report the plugin version, exact action and error text.
-
-To uninstall, close the game and remove BepInEx/plugins/BobbysMods.dll. Optionally remove its configuration folder. Existing game files and BepInEx remain installed.
-
-## Search bar and VR keyboard — 0.6.0
-
-1. Press left X to open the menu.
-2. Touch Search mods... at the top with the right-hand cyan pointer.
-3. A QWERTY touch keyboard appears in front of you. The menu stays above and slightly beyond it as the search-results panel.
-4. Touch letters to type. SPACE adds a space, BACK removes one letter, and CLEAR removes the query. Text is limited to 32 characters.
-5. Matching installed mods appear above the keyboard. Touch a result to enable/disable that feature; its enabled colour matches the regular menu. Freeze still arms B instead of instantly freezing.
-6. Use More results if more than five matches are available.
-7. Touch X CLOSE on the keyboard when done. This closes both the keyboard and menu. Left X also closes the view; pressing it again returns to the normal hand menu.
-
-Search supports partial words and aliases such as ghost (Freeze), tp (Teleport), float (Low Gravity), and long (Smart Arms). All words in the query must match. With no query, all eight installed features are listed. No matching mods is shown for unknown terms.
-
-The search list activates the same existing mod handlers and saves selections to the same per-lobby profiles. All lobby restrictions still apply. A disabled/locked feature cannot be enabled through search. Search itself works while the gameplay controls are locked.
-
-The search view is placed once in front of you; it does not chase your head while typing. Move back to it or close/reopen Search to reposition it. The panels and pointer are local UI, have no colliders and send no network messages. The keyboard is created once and reused.
-
-See GHOST-IDEAS.md for sourced future ghost-themed ideas and their local/multiplayer visibility limits. These ideas have not been silently added to the installed feature list.
-
-Validation: clean build; 71 automated checks including query matching, aliases, no results, length limits, editing, key hit-testing and Close handling. Actual headset keyboard reach, panel placement, pointer visibility and result activation still need VR testing.
+## 0.8.2 Noclip adjustment
+Grip Noclip now clears local Rigidbody linear and angular momentum each physics step while its grip is held. It does not issue movement requests. Collision remains suspended; room-scale headset/controller tracking remains live. Noclip Fly speed defaults to 7 m/s with acceleration 20 m/s²; edit noclip_fly_speed (0.2–15) and noclip_acceleration (1–50) to customize. Neutral input stops flight immediately. Headset validation remains pending.

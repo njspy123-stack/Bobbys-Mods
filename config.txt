@@ -40,5 +40,55 @@ ghost_opacity=0.4
 # 0.5.0: translucent platforms and optional page-two features.
 platform_opacity=0.25
 gravity_multiplier=0.5
-checkpoint_save_button=right_a
-checkpoint_return_button=left_y
+
+# 0.7.0 - false carries selections between all eligible lobbies.
+save_per_lobby=false
+noclip_button=right_grip
+noclip_up_button=left_trigger
+noclip_down_button=left_grip
+noclip_fly_speed=7
+# Head-relative VR display; x/y are normalized view coordinates (0.5=center).
+hud_enabled=true
+hud_x=0.76
+hud_y=0.75
+hud_distance=1
+hud_scale=0.7
+hud_font_size=22
+hud_colour=#39FF88
+hud_show_mode=true
+hud_show_active_count=true
+hud_show_freeze=true
+
+# 0.7.1 - smoother grip movement and original freeze modes.
+noclip_deadzone=0.18
+noclip_acceleration=20
+noclip_fly_auto_forward=false
+
+# 0.8.0 categorized menu and optional movement features.
+fly_button=right_a
+fly_up_button=left_trigger
+fly_down_button=left_grip
+fly_speed=3
+fly_acceleration=10
+speed_boost_multiplier=1.3
+high_jump_multiplier=1.4
+slide_control=1
+ironman_left_button=left_grip
+ironman_right_button=right_grip
+ironman_acceleration=8
+
+# Hover prevents falling through the floor while Grip Noclip is held.
+noclip_hover=true
+
+# 0.8.1: controller-held menu, comfortable VR HUD, native input.
+menu_scale=0.0007
+menu_grip_x=0
+menu_grip_y=0.26
+menu_grip_z=0.06
+menu_grip_pitch=0
+menu_grip_yaw=0
+menu_grip_roll=0
+hud_angle_x=-12
+hud_angle_y=10
+hud_width_degrees=18
+fly_auto_forward=true

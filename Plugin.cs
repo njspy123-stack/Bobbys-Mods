@@ -14,7 +14,7 @@ using UnityEngine.XR;
 
 namespace BobbysMods
 {
-    [BepInPlugin(Id, "Bobbys Mods", "0.6.0")]
+    [BepInPlugin(Id, "Bobbys Mods", "0.7.0")]
     
     
     public sealed partial class Plugin : BaseUnityPlugin
@@ -39,8 +39,9 @@ namespace BobbysMods
         bool freezeSupported;
         bool menuVisible = false;
         readonly MenuTouch touch = new MenuTouch();
-        readonly GameObject[] dots = new GameObject[1];
+        readonly GameObject[] dots = new GameObject[2];
         Vector3 pointerTouchPosition;
+        readonly Vector3[] pointerPositions=new Vector3[2];
         Sprite pointerSprite;
         Texture2D pointerTexture;
         readonly RaycastHit[] aimHits = new RaycastHit[64];
@@ -103,10 +104,11 @@ namespace BobbysMods
             menuFont = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
             var handOffset = AccessTools.DeclaredMethod(typeof(GorillaLocomotion.GTPlayer), "PositionWithOffset", new[] { typeof(Transform), typeof(Vector3) });
             if (handOffset != null) harmony.Patch(handOffset, postfix: new HarmonyMethod(typeof(Plugin), nameof(ExtendHands)));
+            PatchFingerAnimation();
             BuildMenu();
         }
-         public void Joined(string mode) { ResetFeatures(); }
-         public void Left(string mode) { ResetFeatures(); }
+         public void Joined(string mode) { activeLobbyKey=null; ResetFeatures(); }
+         public void Left(string mode) { activeLobbyKey=null; ResetFeatures(); }
         string S(string key, string fallback) => settings.TryGetValue(key, out string value) ? value : fallback;
         float N(string key, float fallback, float min, float max) => float.TryParse(S(key, ""), NumberStyles.Float, CultureInfo.InvariantCulture, out float value) && !float.IsNaN(value) && !float.IsInfinity(value) ? Mathf.Clamp(value, min, max) : fallback;
         Color C(string key, string fallback) => ColorUtility.TryParseHtmlString(S(key, fallback), out Color colour) ? colour : Color.white;
@@ -191,27 +193,38 @@ namespace BobbysMods
             rotation = origin ? origin.rotation * localRotation : localRotation;
             return true;
         }
-        int SelectionMask() => (freezeKey.Armed?1:0)|(gripPlatforms?2:0)|(triggerPlatforms?4:0)|(teleport?8:0)|(smartArms?16:0)|(lowGravity?32:0)|(checkpointArmed?64:0)|(fpsDisplay?128:0);
+        int SelectionMask() => (freezeKey.Armed?1:0)|(gripPlatforms?2:0)|(triggerPlatforms?4:0)|(teleport?8:0)|(smartArms?16:0)|(lowGravity?32:0)|(noclip?64:0)|(fpsDisplay?128:0)|(noclipFly?256:0)|(hudStatus?4096:0)|extraMask;
+        bool PerLobby => S("save_per_lobby","false").Equals("true",StringComparison.OrdinalIgnoreCase);
+        void ApplySelections(int mask)
+        {
+            freezeKey.SetArmed((mask&1)!=0);gripPlatforms=(mask&2)!=0;triggerPlatforms=(mask&4)!=0;teleport=(mask&8)!=0;smartArms=(mask&16)!=0;
+            lowGravity=(mask&32)!=0;noclip=(mask&64)!=0;fpsDisplay=(mask&128)!=0;noclipFly=(mask&256)!=0;hudStatus=(mask&4096)!=0;extraMask=mask&ExtraFeatureMask;
+        }
         bool SyncLobby()
         {
             if(!Allowed){activeLobbyKey=null;activeLobbyName=null;activeLobbyMode=null;return false;}
             var network=NetworkSystem.Instance;
-            string name=network.RoomName, mode=network.GameModeString ?? "";
-            if(string.IsNullOrEmpty(name)){activeLobbyKey=null;return false;}
+            string name=network.RoomName ?? "", mode=network.GameModeString ?? "";
             if(activeLobbyKey!=null && activeLobbyName==name && activeLobbyMode==mode)return false;
             ResetFeatures();
-            activeLobbyName=name;activeLobbyMode=mode;activeLobbyKey=LobbyProfiles.Key(name,mode);
+            activeLobbyName=name;activeLobbyMode=mode;
+            activeLobbyKey=LobbyProfiles.SelectionKey(PerLobby,name,mode);
             int mask=lobbyProfiles.Get(activeLobbyKey);
-            freezeKey.SetArmed((mask&1)!=0);
-            gripPlatforms=(mask&2)!=0;triggerPlatforms=(mask&4)!=0;teleport=(mask&8)!=0;smartArms=(mask&16)!=0;lowGravity=(mask&32)!=0;checkpointArmed=(mask&64)!=0;fpsDisplay=(mask&128)!=0;
-            savedProfileMask=mask;
-            message="Lobby selections restored";
+            // Old bit 64 meant Checkpoint. Never migrate it into Noclip.
+            if(!lobbyProfiles.Contains(activeLobbyKey))
+            {
+                string v3=PerLobby?"v3."+LobbyProfiles.Key(name,mode):"shared.v3";
+                string v2=PerLobby?"v2."+LobbyProfiles.Key(name,mode):"shared.v2";
+                mask=lobbyProfiles.Contains(v3)?LobbyProfiles.MigrateV3(lobbyProfiles.Get(v3)):lobbyProfiles.Contains(v2)?LobbyProfiles.MigrateV3(LobbyProfiles.MigrateV2(lobbyProfiles.Get(v2))):LobbyProfiles.MigrateLegacy(lobbyProfiles.Get(LobbyProfiles.Key(name,mode)));
+            }
+            ApplySelections(mask);savedProfileMask=mask;
+            message=PerLobby?"Room selections restored":"Selections carried into lobby";
             return true;
         }
         void SaveLobby()
         {
             if(activeLobbyKey==null || !Allowed)return;
-            int mask=SelectionMask();if(mask==savedProfileMask)return;
+            int mask=SelectionMask();if(mask==savedProfileMask && lobbyProfiles.Contains(activeLobbyKey))return;
             lobbyProfiles.Set(activeLobbyKey,mask);
             try
             {
@@ -220,7 +233,7 @@ namespace BobbysMods
                 if(File.Exists(profilePath))File.Replace(temporary,profilePath,null);else File.Move(temporary,profilePath);
                 savedProfileMask=mask;
             }
-            catch(Exception e){message="Lobby settings could not save";Logger.LogWarning(e.Message);savedProfileMask=mask;}
+            catch(Exception e){message="Settings could not save; will retry";Logger.LogWarning(e.Message);}
         }
         void Update()
         {
@@ -229,7 +242,7 @@ namespace BobbysMods
             bool freezePress = Pressed("freeze_button", "right_b");
             bool teleportPress = Pressed("teleport_button", "right_trigger");
             if (!Allowed) ResetFeatures();
-            if (!lobbyChanged && Allowed && freezeKey.Respond(freezePress)) ToggleFreeze();
+            if(!lobbyChanged && Allowed && freezeKey.Respond(freezePress))ToggleFreeze();
             UpdateMenu();
             SaveLobby();
             UpdateExtras(lobbyChanged);
@@ -246,6 +259,7 @@ namespace BobbysMods
         }
         void LateUpdate()
         {
+            UpdateHud();
             if (!frozen) return;
             if (!frozenRig || !Allowed) { Unfreeze(); return; }
             ghostVisual.Maintain();
@@ -351,6 +365,7 @@ namespace BobbysMods
         static void FreezeOutgoingPose(VRRig __instance, ref InputStruct __result)
         {
             var plugin = Current;
+            if(plugin && plugin.Allowed && plugin.Extra(9) && __instance==plugin.LocalRig())__result.handPosition=plugin.fingerLock.Apply(__result.handPosition);
             if (!plugin || !plugin.frozen) return;
             if (!plugin.Allowed) { plugin.Unfreeze(); return; }
             // Only the local avatar is changed; remote rigs and local locomotion keep updating.
@@ -375,7 +390,7 @@ namespace BobbysMods
         void Unfreeze() { freezeState.Disable(); ghostVisual.Dispose(); frozenAvatar.Clear(); frozenRig = null; }
         void ResetFeatures()
         {
-            Unfreeze(); freezeKey.Reset(); gripPlatforms = triggerPlatforms = teleport = smartArms = lowGravity = checkpointArmed = fpsDisplay = false; hasCheckpoint=false;
+            StopNoclip();RestoreMovement();ClearFingerLock();extraMask=0;if(hud)hud.SetActive(false);Unfreeze(); freezeKey.Reset(); gripPlatforms = triggerPlatforms = teleport = smartArms = lowGravity = fpsDisplay = noclip = noclipFly = hudStatus = false;
             foreach (var platform in platforms) if (platform && platform.activeSelf) platform.SetActive(false);
             if (line) line.enabled = false;
         }
@@ -386,7 +401,9 @@ namespace BobbysMods
             DontDestroyOnLoad(menu);
             menu.SetActive(false);
             var canvas = menu.GetComponent<Canvas>(); canvas.renderMode = RenderMode.WorldSpace; canvas.sortingOrder = 100;
-            var rect = menu.GetComponent<RectTransform>(); rect.sizeDelta = new Vector2(420, 620); menu.transform.localScale = Vector3.one * .001f;
+            var rect = menu.GetComponent<RectTransform>(); rect.sizeDelta = new Vector2(420, 620); menu.transform.localScale = Vector3.one * N("menu_scale",.0007f,.0004f,.0012f);
+            BuildDepth(menu.transform,new Vector3(0,0,18),new Vector3(428,628,32),C("menu_border","#00F5FF"));
+            BuildDepth(menu.transform,new Vector3(0,-365,18),new Vector3(70,100,40),C("menu_border","#00F5FF"));
             var backdrop = menu.AddComponent<Image>(); backdrop.raycastTarget = false; backdrop.color = C("menu_background", "#090B1C");
             var outline = menu.AddComponent<Outline>(); outline.effectColor = C("menu_border", "#00F5FF"); outline.effectDistance = new Vector2(4, -4);
             AddRow(S("menu_name", "Bobbys Mods"), 0);
@@ -395,12 +412,14 @@ namespace BobbysMods
             AddRow(S("label_grip", "Grip Platforms"), 3);
             AddRow(S("label_trigger", "Trigger Platforms"), 4);
             AddRow(S("label_teleport", "Teleport"), 5);
-            AddRow(S("label_arms", "Smart Arms"), 6); AddRow("Next Page", 7); AddRow("Disable All", 8); AddRow("", 9);
+            AddRow(S("label_arms", "Smart Arms"), 6); AddRow("Next >", 7); AddRow("Categories", 8); AddRow("", 9); AddRow("< Previous",10);
         }
         void AddRow(string label, int index)
         {
             var row = new GameObject("Row " + index, typeof(RectTransform), typeof(Image)); row.transform.SetParent(menu.transform, false);
             var rect = row.GetComponent<RectTransform>(); rect.sizeDelta = new Vector2(390, 48); rect.anchoredPosition = new Vector2(0, 260 - index * 57);
+            if(index==7 || index==10){rect.sizeDelta=new Vector2(185,48);rect.anchoredPosition=new Vector2(index==7?100:-100,260-7*57);}
+            if(index>0 && index<9)BuildDepth(row.transform,new Vector3(0,0,4),new Vector3(index==7?189:394,52,8),C("menu_border","#00F5FF"));
             var img = row.GetComponent<Image>(); img.raycastTarget = false; img.color = index < 1 || index == 9 ? Color.clear : C("menu_button_colour", "#802EFF"); rowImages.Add(img);
             var textObject = new GameObject("Label", typeof(RectTransform), typeof(Text)); textObject.transform.SetParent(row.transform, false);
             var tr = textObject.GetComponent<RectTransform>(); tr.anchorMin = Vector2.zero; tr.anchorMax = Vector2.one; tr.offsetMin = tr.offsetMax = Vector2.zero;
@@ -410,28 +429,32 @@ namespace BobbysMods
         {
             if (menu && menu.activeSelf != visible) menu.SetActive(visible);
             foreach (var dot in dots) if (dot && dot.activeSelf != visible) dot.SetActive(visible);
-            if (!visible) {touch.Release();searchKeyboard?.Visible(false);keyboardTouch.Release();}
+            if (!visible) {touch.Release();searchKeyboard?.Visible(false);keyboardTouch.Release();leftKeyboardTouch.Release();}
         }
         void UpdateDots(Vector3 position, Quaternion rotation)
         {
-            pointerTouchPosition=position+rotation*new Vector3(0,0,.055f);
-            if (!dots[0])
+            pointerPositions[0]=position+rotation*new Vector3(0,0,.055f);pointerTouchPosition=pointerPositions[0];
+            bool haveLeft=HandPose(XRNode.LeftHand,out Vector3 left,out Quaternion lq);
+            pointerPositions[1]=left+lq*new Vector3(0,0,.055f);
+            if(!pointerSprite)
             {
                 pointerTexture=new Texture2D(24,24,TextureFormat.RGBA32,false);
-                for(int y=0;y<24;y++)for(int x=0;x<24;x++)
-                    pointerTexture.SetPixel(x,y,(x-11.5f)*(x-11.5f)+(y-11.5f)*(y-11.5f)<=121 ? Color.white : Color.clear);
-                pointerTexture.Apply();
-                pointerSprite=Sprite.Create(pointerTexture,new Rect(0,0,24,24),new Vector2(.5f,.5f),24);
-                var dot=new GameObject("Bobbys touch pointer",typeof(RectTransform),typeof(Canvas),typeof(Image));
-                dot.layer=2;
-                var canvas=dot.GetComponent<Canvas>();canvas.renderMode=RenderMode.WorldSpace;canvas.overrideSorting=true;canvas.sortingOrder=200;
-                var rect=dot.GetComponent<RectTransform>();rect.sizeDelta=new Vector2(16,16);dot.transform.localScale=Vector3.one*.001f;
-                var graphic=dot.GetComponent<Image>();graphic.sprite=pointerSprite;graphic.color=pointerColour;graphic.raycastTarget=false;
-                DontDestroyOnLoad(dot);dots[0]=dot;
+                for(int y=0;y<24;y++)for(int x=0;x<24;x++)pointerTexture.SetPixel(x,y,(x-11.5f)*(x-11.5f)+(y-11.5f)*(y-11.5f)<=121?Color.white:Color.clear);
+                pointerTexture.Apply();pointerSprite=Sprite.Create(pointerTexture,new Rect(0,0,24,24),new Vector2(.5f,.5f),24);
             }
-            if(!dots[0].activeSelf)dots[0].SetActive(true);
-            // Its canvas sorts above the panel. Contact still uses the real pointer position.
-            dots[0].transform.SetPositionAndRotation(pointerTouchPosition,menu.transform.rotation);
+            for(int i=0;i<2;i++)
+            {
+                if(!dots[i])
+                {
+                    var dot=new GameObject("Bobbys "+(i==0?"right":"left")+" touch pointer",typeof(RectTransform),typeof(Canvas),typeof(Image));dot.layer=2;
+                    var canvas=dot.GetComponent<Canvas>();canvas.renderMode=RenderMode.WorldSpace;canvas.overrideSorting=true;canvas.sortingOrder=200;
+                    dot.GetComponent<RectTransform>().sizeDelta=new Vector2(16,16);dot.transform.localScale=Vector3.one*.001f;
+                    var graphic=dot.GetComponent<Image>();graphic.sprite=pointerSprite;graphic.color=pointerColour;graphic.raycastTarget=false;
+                    DontDestroyOnLoad(dot);dots[i]=dot;
+                }
+                dots[i].SetActive(i==0 || (searchOpen && haveLeft));
+                dots[i].transform.SetPositionAndRotation(pointerPositions[i],menu.transform.rotation);
+            }
         }
         void UpdateMenu()
         {
@@ -439,18 +462,18 @@ namespace BobbysMods
             if (!menuVisible || !HandPose(XRNode.LeftHand, out Vector3 left, out Quaternion rotation)) { SetVisible(false); return; }
             var camera = ViewCamera();
             if (!camera || !HandPose(XRNode.RightHand, out Vector3 right, out Quaternion rq)) { SetVisible(false); return; }
-            menu.transform.position = searchOpen ? searchPanelPosition : left + Vector3.up * .25f;
-            menu.transform.rotation = searchOpen ? searchPanelRotation : Quaternion.LookRotation(menu.transform.position - camera.transform.position);
+            menu.transform.position = searchOpen ? searchPanelPosition : left + rotation * new Vector3(N("menu_grip_x",0,-.4f,.4f),N("menu_grip_y",.26f,-.4f,.5f),N("menu_grip_z",.06f,-.4f,.4f));
+            menu.transform.rotation = searchOpen ? searchPanelRotation : rotation * Quaternion.Euler(N("menu_grip_pitch",0,-180,180),N("menu_grip_yaw",0,-180,180),N("menu_grip_roll",0,-180,180));
             SetVisible(true);
             UpdateDots(right, rq);
             bool allowed = Allowed;
             string status = allowed ? (AllLobbies ? "ALL LOBBIES - READY" : "PRIVATE MODDED ROOM - READY") : (AllLobbies ? "JOIN A ROOM TO USE MODS" : "LOCKED: PRIVATE MODDED ROOM ONLY");
             string searchHeader=searchOpen ? "Search: "+(search.Query.Length==0?"type below...":search.Query) : "Search mods...";
             if(rows[1].text!=searchHeader)rows[1].text=searchHeader;
-            string title=S("menu_name","Bobbys Mods")+(searchOpen?" Search":" "+(menuPage+1)+"/2");
+            string title=searchOpen?"Search":categoryIndex<0?S("menu_name","Bobbys Mods"):MenuCatalog.Names[categoryIndex]+" "+(menuPage+1)+"/"+MenuCatalog.Pages(categoryIndex);
             if(rows[0].text!=title)rows[0].text=title;
-            for(int i=0;i<5;i++){int feature=RowFeature(i+2);string label=feature>=0?FeatureLabel(feature):(i==0?"No matching mods":"");if(rows[i+2].text!=label)rows[i+2].text=label;}
-            string pageLabel=searchOpen?(searchCount>5?"More results":"All results shown"):(menuPage==0?"Next Page":"Previous Page");
+            for(int i=0;i<5;i++){int feature=RowFeature(i+2);string label=feature>=100?MenuCatalog.Names[feature-100]:feature>=0?FeatureLabel(feature):(i==0?"No matching mods":"");if(rows[i+2].text!=label)rows[i+2].text=label;}
+            string pageLabel="Next >";
             if(rows[7].text!=pageLabel)rows[7].text=pageLabel;
             string footer=!allowed?status:(fpsDisplay ? fpsText+" | "+message : message);
             if(rows[9].text!=footer)rows[9].text=footer;
@@ -462,25 +485,29 @@ namespace BobbysMods
             }
             if(HandleKeyboard())return;
             int hovered = -1;
-            foreach (var dot in dots)
+            for(int hand=0;hand<(searchOpen?2:1);hand++)
             {
-                var local = menu.transform.InverseTransformPoint(pointerTouchPosition);
+                var local = menu.transform.InverseTransformPoint(pointerPositions[hand]);
                 int row = MenuTouch.Hit(local.x, local.y, local.z);
                 if (row >= 0) { hovered = row; break; }
             }
             int selected = touch.Enter(hovered, Time.unscaledTime);
             if (selected < 0) return;
             if(selected==1){if(!searchOpen)BeginSearch();return;}
-            if(selected==7){if(searchOpen){int pages=(searchCount+4)/5;if(pages>1)searchPage=(searchPage+1)%pages;}else menuPage=1-menuPage;return;}
-            if(selected==8){ResetFeatures();return;}
+            if(selected==7 || selected==10){int delta=selected==7?1:-1;if(searchOpen)searchPage=MenuCatalog.Move(searchPage,delta,(searchCount+4)/5);else menuPage=MenuCatalog.Move(menuPage,delta,MenuCatalog.Pages(categoryIndex));return;}
+            if(selected==8){if(searchOpen)EndSearch(false);categoryIndex=-1;menuPage=0;return;}
             int selectedFeature=RowFeature(selected);if(selectedFeature<0)return;
             ActivateFeature(selectedFeature);
         }
         void ActivateFeature(int feature)
         {
-            if(feature==8){ResetFeatures();Reload();if(platformMaterial)Destroy(platformMaterial);platformMaterial=null;BuildMenu();return;}
-            if(feature==9){message="0.6.0 beta: headset tests pending";return;}
+            if(feature>=100){categoryIndex=feature-100;menuPage=0;return;}
+            if(feature==20){ResetFeatures();return;}
+            if(feature==18){ResetFeatures();Reload();if(platformMaterial)Destroy(platformMaterial);platformMaterial=null;BuildMenu();return;}
+            if(feature==19){message="0.7.0 beta: headset tests pending";return;}
             if(!Allowed)return;
+            if(feature==9 && (!fingerSupported || !freezeSupported)){message="Finger animation lock unavailable on this version";return;}
+            if(feature>=9 && feature!=12){extraMask^=1<<feature;if(feature==9)ClearFingerLock();return;}
             switch(feature)
             {
                 case 0:freezeKey.Toggle();if(!freezeKey.Armed)Unfreeze();message=freezeKey.Armed?"Freeze armed: press "+S("freeze_button","right_b"):"Freeze keybind disabled";break;
@@ -489,14 +516,16 @@ namespace BobbysMods
                 case 3:teleport=!teleport;break;
                 case 4:smartArms=!smartArms;break;
                 case 5:lowGravity=!lowGravity;break;
-                case 6:checkpointArmed=!checkpointArmed;if(!checkpointArmed)hasCheckpoint=false;message="Checkpoint: "+S("checkpoint_save_button","right_a")+" save / "+S("checkpoint_return_button","left_y")+" return";break;
+                case 6:noclip=!noclip;if(!noclip && !noclipFly)StopNoclip();break;
                 case 7:fpsDisplay=!fpsDisplay;break;
+                case 8:noclipFly=!noclipFly;if(!noclipFly && !noclip)StopNoclip();break;
+                case 12:hudStatus=!hudStatus;break;
             }
         }
         void OnDisable() { SaveLobby(); ResetFeatures(); SetVisible(false); }
         void OnDestroy()
         {
-            EndSearch(false);searchKeyboard?.Destroy();ResetFeatures(); foreach (var platform in platforms) if (platform) Destroy(platform); foreach (var dot in dots) if (dot) Destroy(dot); harmony?.UnpatchSelf(); if (menu) Destroy(menu); if (line) Destroy(line.gameObject); if (neon) Destroy(neon); if(platformMaterial)Destroy(platformMaterial); if(pointerSprite)Destroy(pointerSprite); if(pointerTexture)Destroy(pointerTexture); Current = null;
+            EndSearch(false);searchKeyboard?.Destroy();ResetFeatures(); foreach (var platform in platforms) if (platform) Destroy(platform); foreach (var dot in dots) if (dot) Destroy(dot); harmony?.UnpatchSelf(); if (menu) Destroy(menu); if (line) Destroy(line.gameObject); if (neon) Destroy(neon); if(platformMaterial)Destroy(platformMaterial); if(pointerSprite)Destroy(pointerSprite); if(pointerTexture)Destroy(pointerTexture); DestroyExtras();Current = null;
         }
     }
 }

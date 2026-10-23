@@ -7,7 +7,7 @@
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Plugin.cs" />
+    <Compile Include="Plugin.cs" /><Compile Include="GhostExtras.cs" /><Compile Include="ExpandedFeatures.cs" /><Compile Include="MenuCatalog.cs" />
     <Compile Include="FreezeState.cs" /><Compile Include="MenuTouch.cs" /><Compile Include="GhostVisual.cs" /><Compile Include="FrozenAvatar.cs" /><Compile Include="ModRules.cs" /><Compile Include="LobbyProfiles.cs" /><Compile Include="VisualMaterial.cs" /><Compile Include="AdditionalFeatures.cs" /><Compile Include="ModSearch.cs" /><Compile Include="VrSearchKeyboard.cs" />
     <Reference Include="$(GamePath)\Gorilla Tag_Data\Managed\UnityEngine*.dll"><Private>false</Private></Reference>
     <Reference Include="$(GamePath)\Gorilla Tag_Data\Managed\Assembly-CSharp.dll"><Private>false</Private></Reference>

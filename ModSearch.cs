@@ -7,7 +7,7 @@ namespace BobbysMods
   internal string Query {get;private set;}="";
   internal const int MaxLength=32;
   static readonly string[] Keywords={
-   "freeze avatar ghost frozen keybind", "grip platforms platform", "trigger platforms platform", "teleport tp aim warp", "smart arms long reach", "low gravity float", "checkpoint save return warp", "fps display frames performance"
+   "freeze avatar ghost frozen keybind", "grip platforms platform", "trigger platforms platform", "teleport tp aim warp", "smart arms long reach", "low gravity float", "grip noclip phase walls", "fps display frames performance", "noclip fly flight phase", "no finger movement fingers lock", "fly flight", "speed boost", "hud status display", "high jump", "zero gravity", "iron man thruster", "slide control ice", "session timer time display"
   };
   internal bool Press(string key)
   {

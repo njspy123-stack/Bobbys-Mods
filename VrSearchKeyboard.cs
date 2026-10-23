@@ -32,8 +32,9 @@ namespace BobbysMods
  {
   bool searchOpen;
   readonly ModSearch search=new ModSearch();
-  readonly int[] searchMatches=new int[8];
+  readonly int[] searchMatches=new int[18];
   readonly MenuTouch keyboardTouch=new MenuTouch();
+  readonly MenuTouch leftKeyboardTouch=new MenuTouch();
   int searchCount,searchPage;
   VrSearchKeyboard searchKeyboard;
   Vector3 searchPanelPosition;
@@ -49,33 +50,31 @@ namespace BobbysMods
    searchKeyboard.Place(keyboardPosition,searchPanelRotation);
    searchPanelPosition=keyboardPosition+Vector3.up*.46f+forward*.1f;
    search.Press("CLEAR");RefreshSearch();searchOpen=true;menuVisible=true;
-   touch.Release();keyboardTouch.Release();searchKeyboard.Visible(true);
+   touch.Release();keyboardTouch.Release();leftKeyboardTouch.Release();searchKeyboard.Visible(true);
   }
   void EndSearch(bool closeMenu)
   {
-   searchOpen=false;searchKeyboard?.Visible(false);keyboardTouch.Release();touch.Release();
+   searchOpen=false;searchKeyboard?.Visible(false);keyboardTouch.Release();leftKeyboardTouch.Release();touch.Release();
    if(closeMenu){menuVisible=false;SetVisible(false);}
   }
   void RefreshSearch(){searchCount=search.Filter(searchMatches);searchPage=0;}
   int RowFeature(int row)
   {
-   if(!searchOpen)return ModRules.FeatureIndex(menuPage,row);
+   if(!searchOpen)return MenuCatalog.Feature(categoryIndex,menuPage,row-2);
    int index=searchPage*5+row-2;return index>=0 && index<searchCount?searchMatches[index]:-1;
   }
   bool HandleKeyboard()
   {
    if(!searchOpen)return false;
    searchKeyboard.Visible(true);
-   int hovered=searchKeyboard.Hit(pointerTouchPosition);
-   int selected=keyboardTouch.Enter(hovered,Time.unscaledTime);
-   if(hovered>=0)touch.Release();
-   if(selected>=0)
+   bool any=false;
+   for(int hand=0;hand<2;hand++)
    {
-    string value=SearchKeyboardLayout.Keys[selected].Value;
-    if(search.Press(value)){EndSearch(true);return true;}
-    RefreshSearch();return true;
+    int hovered=searchKeyboard.Hit(pointerPositions[hand]);var debounce=hand==0?keyboardTouch:leftKeyboardTouch;
+    int selected=debounce.Enter(hovered,Time.unscaledTime);if(hovered>=0){touch.Release();any=true;}
+    if(selected>=0){string value=SearchKeyboardLayout.Keys[selected].Value;if(search.Press(value)){EndSearch(true);return true;}RefreshSearch();}
    }
-   return hovered>=0;
+   return any;
   }
  }
 }

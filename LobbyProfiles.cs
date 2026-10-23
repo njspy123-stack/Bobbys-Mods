@@ -8,8 +8,13 @@ namespace BobbysMods
  {
   readonly Dictionary<string,int> masks=new Dictionary<string,int>(StringComparer.Ordinal);
   internal static string Key(string room,string mode)=>Convert.ToBase64String(Encoding.UTF8.GetBytes(room))+"."+Convert.ToBase64String(Encoding.UTF8.GetBytes(mode));
+  internal static string SelectionKey(bool perLobby,string room,string mode)=>perLobby?"v4."+Key(room,mode):"shared.v4";
+  internal static int MigrateV3(int mask)=>mask&~(512|1024|2048);
+  internal static int MigrateV2(int mask)=>mask&~(512|1024);
+  internal static int MigrateLegacy(int mask)=>mask&191;
   internal int Get(string key)=>key!=null && masks.TryGetValue(key,out int value)?value:0;
-  internal void Set(string key,int mask){if(key!=null)masks[key]=mask&255;}
+  internal bool Contains(string key)=>key!=null && masks.ContainsKey(key);
+  internal void Set(string key,int mask){if(key!=null)masks[key]=mask&262143;}
   internal void Read(string text)
   {
    masks.Clear();
@@ -17,7 +22,7 @@ namespace BobbysMods
    {
     string line=raw.Trim();if(line.Length==0 || line.StartsWith("#"))continue;
     int split=line.LastIndexOf('=');if(split<=0)continue;
-    if(int.TryParse(line.Substring(split+1),NumberStyles.Integer,CultureInfo.InvariantCulture,out int value) && value>=0 && value<=255)masks[line.Substring(0,split)]=value;
+    if(int.TryParse(line.Substring(split+1),NumberStyles.Integer,CultureInfo.InvariantCulture,out int value) && value>=0 && value<=262143)masks[line.Substring(0,split)]=value;
    }
   }
   internal string Write()

@@ -23,3 +23,10 @@ Firecrawl could not run because the connected account had no credits. Research c
 ## Ghost ideas and search UI
 Additional primary repositories reviewed: https://github.com/developer9998/GorillaInvisibility and https://github.com/NachoEngine/GorillaTagGhostEntity . See GHOST-IDEAS.md for proposals and visibility limits. No code/assets/DLLs were copied from these projects.
 
+
+## 0.7.0 ideas
+Reviewed feature labels only in https://github.com/SilverXdamodder/ii-s-Stupid-Reborn/blob/main/Menu/Buttons.cs (a community fork; the former upstream URL returned 404). Labels included Ghost, Non-Togglable Ghost, Menu Trail and Orbit Projectiles. Bobbys implements original hold-to-ghost, local hand ribbons and local primitive wisps; no third-party code/assets or projectile/network behavior was copied.
+
+0.7.1: original Menu Ghost and Pulse Ghost based on previously reviewed Freeze Rig in Menu and Ghost Animations labels in the community ii menu fork. Implemented through Bobbys existing freeze handler, with no third-party code/assets.
+
+0.8.0: reviewed feature LABELS in https://github.com/SilverXdamodder/ii-s-Stupid-Reborn/blob/main/Menu/Buttons.cs for movement/menu inspiration (fly-speed settings, speed-boost settings, hand/wrist/menu organization). Implemented original categorized navigation, movement modifiers and finger lock against local game metadata. No ii method bodies or assets copied. The original upstream URL was previously unavailable; this is a community fork, not a claim of official upstream provenance.
