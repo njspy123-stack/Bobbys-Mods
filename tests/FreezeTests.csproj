@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup><TargetFramework>net8.0</TargetFramework><OutputType>Exe</OutputType><EnableDefaultCompileItems>false</EnableDefaultCompileItems></PropertyGroup>
-  <ItemGroup><Compile Include="../FreezeState.cs" Link="FreezeState.cs"/><Compile Include="Program.cs"/><Compile Include="../MenuTouch.cs"/><Compile Include="../ModRules.cs"/><Compile Include="../LobbyProfiles.cs"/><Compile Include="../ModSearch.cs"/></ItemGroup>
+  <ItemGroup><Compile Include="../FreezeState.cs" Link="FreezeState.cs"/><Compile Include="Program.cs"/><Compile Include="../MenuCatalog.cs"/><Compile Include="../MenuTouch.cs"/><Compile Include="../ModRules.cs"/><Compile Include="../LobbyProfiles.cs"/><Compile Include="../ModSearch.cs"/></ItemGroup>
 </Project>
 
 
