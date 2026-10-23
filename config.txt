@@ -1,0 +1,44 @@
+# Bobbys Mods - edit then select Reload Config in the menu.
+# Buttons: left_x, left_y, right_a, right_b, left_grip, right_grip,
+# left_trigger, right_trigger, left_stick, right_stick, none
+# Restart with a valid menu_button if you accidentally hide the menu.
+menu_name=Bobbys Mods
+menu_button=left_x
+freeze_button=right_b
+teleport_button=right_trigger
+platform_left_grip=left_grip
+platform_right_grip=right_grip
+platform_left_trigger=left_trigger
+platform_right_trigger=right_trigger
+menu_background=#090B1C
+menu_border=#00F5FF
+menu_button_colour=#802EFF
+menu_enabled_colour=#39FF88
+menu_text_colour=#FFFFFF
+platform_colour=#BD38FF
+teleport_line_colour=#00F5FF
+platform_width=0.30
+platform_depth=0.30
+platform_thickness=0.04
+teleport_range=25
+teleport_cooldown=0.5
+label_freeze=Freeze Avatar (experimental)
+label_grip=Grip Platforms
+label_trigger=Trigger Platforms
+label_teleport=Teleport
+
+# true = any joined lobby; false = private MODDED rooms only.
+work_in_all_lobbies=true
+
+label_arms=Smart Arms
+pointer_colour=#00FFFF
+
+# Local-only ghost appearance while avatar freeze is enabled.
+ghost_colour=#39FF88
+ghost_opacity=0.4
+
+# 0.5.0: translucent platforms and optional page-two features.
+platform_opacity=0.25
+gravity_multiplier=0.5
+checkpoint_save_button=right_a
+checkpoint_return_button=left_y

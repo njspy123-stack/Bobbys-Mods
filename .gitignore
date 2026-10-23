@@ -1,0 +1,11 @@
+bin/
+obj/
+.dotnet/
+.dotnet-home/
+dependencies/
+*.dll
+*.pdb
+*.zip
+**/lobby-settings.txt
+**/lobby-settings.txt.tmp
+*.user

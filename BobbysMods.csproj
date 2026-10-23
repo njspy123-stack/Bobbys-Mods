@@ -1,0 +1,34 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <AssemblyName>BobbysMods</AssemblyName>
+    <GamePath Condition="'$(GamePath)' == ''">$(GORILLA_TAG_PATH)</GamePath>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="Plugin.cs" />
+    <Compile Include="FreezeState.cs" /><Compile Include="MenuTouch.cs" /><Compile Include="GhostVisual.cs" /><Compile Include="FrozenAvatar.cs" /><Compile Include="ModRules.cs" /><Compile Include="LobbyProfiles.cs" /><Compile Include="VisualMaterial.cs" /><Compile Include="AdditionalFeatures.cs" /><Compile Include="ModSearch.cs" /><Compile Include="VrSearchKeyboard.cs" />
+    <Reference Include="$(GamePath)\Gorilla Tag_Data\Managed\UnityEngine*.dll"><Private>false</Private></Reference>
+    <Reference Include="$(GamePath)\Gorilla Tag_Data\Managed\Assembly-CSharp.dll"><Private>false</Private></Reference>
+    <Reference Include="$(GamePath)\Gorilla Tag_Data\Managed\PhotonUnityNetworking.dll"><Private>false</Private></Reference>
+    <Reference Include="$(GamePath)\Gorilla Tag_Data\Managed\PhotonRealtime.dll"><Private>false</Private></Reference>
+    <Reference Include="$(GamePath)\Gorilla Tag_Data\Managed\Photon3Unity3D.dll"><Private>false</Private></Reference>
+    <Reference Include="$(GamePath)\BepInEx\core\BepInEx.dll"><Private>false</Private></Reference>
+    <Reference Include="$(GamePath)\BepInEx\core\0Harmony.dll"><Private>false</Private></Reference>
+    <None Update="config.txt" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+  <Target Name="CheckGame" BeforeTargets="ResolveReferences">
+    <Error Condition="!Exists('$(GamePath)\Gorilla Tag_Data\Managed\UnityEngine.CoreModule.dll')" Text="Set GamePath to your Gorilla Tag installation. See README.md." />
+  </Target>
+</Project>
+
+
+
+
+
+
+
+
+
+
