@@ -16,7 +16,7 @@
     <Reference Include="$(GamePath)\Gorilla Tag_Data\Managed\Photon3Unity3D.dll"><Private>false</Private></Reference>
     <Reference Include="$(GamePath)\BepInEx\core\BepInEx.dll"><Private>false</Private></Reference>
     <Reference Include="$(GamePath)\BepInEx\core\0Harmony.dll"><Private>false</Private></Reference>
-    <None Update="config.txt" CopyToOutputDirectory="PreserveNewest" />
+    <EmbeddedResource Include="config.txt" LogicalName="BobbysMods.DefaultConfig" />
   </ItemGroup>
   <Target Name="CheckGame" BeforeTargets="ResolveReferences">
     <Error Condition="!Exists('$(GamePath)\Gorilla Tag_Data\Managed\UnityEngine.CoreModule.dll')" Text="Set GamePath to your Gorilla Tag installation. See README.md." />

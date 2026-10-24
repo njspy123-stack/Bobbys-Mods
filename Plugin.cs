@@ -76,12 +76,23 @@ namespace BobbysMods
             Current = this;
             var pluginDirectory = Path.GetDirectoryName(Info.Location);
             // The DLL may live in plugins/ or a subfolder; configuration has one stable home.
-            configPath = Path.Combine(Paths.PluginPath, "BobbysMods", "config.txt");
+            configPath = Path.Combine(Paths.PluginPath, "Bobbys Mods", "config.txt");
             Directory.CreateDirectory(Path.GetDirectoryName(configPath));
             if (!File.Exists(configPath))
             {
                 string adjacent = Path.Combine(pluginDirectory, "config.txt");
-                if (File.Exists(adjacent)) File.Copy(adjacent, configPath);
+                string previous = Path.Combine(Paths.PluginPath, "BobbysMods", "config.txt");
+                string source = File.Exists(previous) ? previous : adjacent;
+                if (File.Exists(source)) File.Copy(source, configPath);
+                else
+                {
+                    using (var template = typeof(Plugin).Assembly.GetManifestResourceStream("BobbysMods.DefaultConfig"))
+                    using (var output = File.Create(configPath))
+                        template.CopyTo(output);
+                }
+                string oldProfiles = Path.Combine(Path.GetDirectoryName(source), "lobby-settings.txt");
+                string newProfiles = Path.Combine(Path.GetDirectoryName(configPath), "lobby-settings.txt");
+                if (File.Exists(oldProfiles) && !File.Exists(newProfiles)) File.Copy(oldProfiles, newProfiles);
             }
             Logger.LogInfo("Bobbys Mods config: " + configPath);
             Reload();

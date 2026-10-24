@@ -3,9 +3,9 @@
 Windows Steam PC VR Gorilla Tag menu. Requires BepInEx 5 and your own installed game. Standalone Quest is not supported. No Utilla dependency.
 
 ## Download and install
-Download [Bobbys Mods 0.7.0](https://github.com/njspy123-stack/Bobbys-Mods/releases/tag/v0.7.0): choose BobbysMods.dll and config.txt, or BobbysMods-0.7.0-beta.zip for the installation folders. The automatic Source code ZIP is for developers.
+Download [Bobbys Mods 0.7.0](https://github.com/njspy123-stack/Bobbys-Mods/releases/tag/v0.7.0): choose BobbysMods.dll, or BobbysMods-0.7.0-beta.zip for the installation folders. The automatic Source code ZIP is for developers.
 
-Close Gorilla Tag. Put BobbysMods.dll directly in BepInEx/plugins. Put config.txt in BepInEx/plugins/BobbysMods/config.txt. Preserve your existing config when updating and add new keys from the template. Keep one DLL only; remove the historical BobbysWorldScale.dll add-on. Start through Steam in PC VR and press left X. Never double-click the DLL.
+Close Gorilla Tag. Put BobbysMods.dll directly in BepInEx/plugins. On first launch, the DLL automatically creates BepInEx/plugins/Bobbys Mods/config.txt from its built-in template. Existing settings and lobby selections from the old BobbysMods folder are copied when the new config is absent. Preserve your existing config when updating and add new keys from the template. Keep one DLL only; remove the historical BobbysWorldScale.dll add-on. Start through Steam in PC VR and press left X. Never double-click the DLL.
 
 The public 0.7.0 beta includes the categorized menu and current fixes. Both Noclip buttons are marked (matinence) while repairs continue.
 
@@ -36,7 +36,7 @@ Fly: hold fly_button (right A), use left thumbstick for headset-directed movemen
 Captures finger-bone rotations and the six packed finger-bend digits on the local avatar. Held-item flag digits remain live; controller tracking and grip/trigger gameplay inputs remain active. Disable to resume animation. This does not freeze head, body or hand positions. Remote appearance is unverified and must be checked with a consenting second player.
 
 ## Config
-The active file is BepInEx/plugins/BobbysMods/config.txt. Reload Config applies edits and disables all features; re-enable the ones you want. Common new settings:
+The active file is BepInEx/plugins/Bobbys Mods/config.txt. Reload Config applies edits and disables all features; re-enable the ones you want. Common new settings:
 
     noclip_hover=true
     noclip_button=right_grip
