@@ -2,6 +2,9 @@
 
 Windows Steam PC VR Gorilla Tag menu. Requires BepInEx 5 and your own installed game. Standalone Quest is not supported. No Utilla dependency.
 
+## Installation video
+[Watch the Bobbys Mods installation tutorial on YouTube](https://www.youtube.com/watch?v=yKL62emQ7cI)
+
 ## Download and install
 Download [Bobbys Mods 0.7.1](https://github.com/njspy123-stack/Bobbys-Mods/releases/tag/v0.7.1): choose BobbysMods.dll, or BobbysMods-0.7.1-beta.zip for the installation folders. The automatic Source code ZIP is for developers.
 
