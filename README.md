@@ -1,13 +1,13 @@
-# Bobbys Mods 0.7.0 beta
+# Bobbys Mods 0.7.1 beta
 
 Windows Steam PC VR Gorilla Tag menu. Requires BepInEx 5 and your own installed game. Standalone Quest is not supported. No Utilla dependency.
 
 ## Download and install
-Download [Bobbys Mods 0.7.0](https://github.com/njspy123-stack/Bobbys-Mods/releases/tag/v0.7.0): choose BobbysMods.dll, or BobbysMods-0.7.0-beta.zip for the installation folders. The automatic Source code ZIP is for developers.
+Download [Bobbys Mods 0.7.1](https://github.com/njspy123-stack/Bobbys-Mods/releases/tag/v0.7.1): choose BobbysMods.dll, or BobbysMods-0.7.1-beta.zip for the installation folders. The automatic Source code ZIP is for developers.
 
 Close Gorilla Tag. Put BobbysMods.dll directly in BepInEx/plugins. On first launch, the DLL automatically creates BepInEx/plugins/Bobbys Mods/config.txt from its built-in template. Existing settings and lobby selections from the old BobbysMods folder are copied when the new config is absent. Preserve your existing config when updating and add new keys from the template. Keep one DLL only; remove the historical BobbysWorldScale.dll add-on. Start through Steam in PC VR and press left X. Never double-click the DLL.
 
-The public 0.7.0 beta includes the categorized menu and current fixes. Both Noclip buttons are marked (matinence) while repairs continue.
+The public 0.7.1 beta includes the categorized menu and current fixes. Both Noclip buttons are marked (matinence) while repairs continue.
 
 ## Menu
 Home has Movement, Platforms, Avatar, Displays and Settings categories. Touch with the right pointer. Movement has two pages; other categories fit one page. Use the separate < Previous and Next > arrow buttons, which wrap within the current category. Categories returns home. Search covers all 18 feature toggles across categories. Both hands can type and select search results. X CLOSE closes search and the menu. The neon menu has raised 3D bezels without physics colliders.

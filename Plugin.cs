@@ -14,7 +14,7 @@ using UnityEngine.XR;
 
 namespace BobbysMods
 {
-    [BepInPlugin(Id, "Bobbys Mods", "0.7.0")]
+    [BepInPlugin(Id, "Bobbys Mods", "0.7.1")]
     
     
     public sealed partial class Plugin : BaseUnityPlugin
@@ -515,7 +515,7 @@ namespace BobbysMods
             if(feature>=100){categoryIndex=feature-100;menuPage=0;return;}
             if(feature==20){ResetFeatures();return;}
             if(feature==18){ResetFeatures();Reload();if(platformMaterial)Destroy(platformMaterial);platformMaterial=null;BuildMenu();return;}
-            if(feature==19){message="0.7.0 beta: headset tests pending";return;}
+            if(feature==19){message="0.7.1 beta: headset tests pending";return;}
             if(!Allowed)return;
             if(feature==9 && (!fingerSupported || !freezeSupported)){message="Finger animation lock unavailable on this version";return;}
             if(feature>=9 && feature!=12){extraMask^=1<<feature;if(feature==9)ClearFingerLock();return;}

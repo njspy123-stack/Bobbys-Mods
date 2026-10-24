@@ -37,11 +37,11 @@ pointer_colour=#00FFFF
 ghost_colour=#39FF88
 ghost_opacity=0.4
 
-# Bobbys Mods 0.7.0 settings
+# Bobbys Mods 0.7.1 settings
 platform_opacity=0.25
 gravity_multiplier=0.5
 
-# Bobbys Mods 0.7.0 settings
+# Bobbys Mods 0.7.1 settings
 save_per_lobby=false
 noclip_button=right_grip
 noclip_up_button=left_trigger
@@ -59,12 +59,12 @@ hud_show_mode=true
 hud_show_active_count=true
 hud_show_freeze=true
 
-# Bobbys Mods 0.7.0 settings
+# Bobbys Mods 0.7.1 settings
 noclip_deadzone=0.18
 noclip_acceleration=20
 noclip_fly_auto_forward=false
 
-# Bobbys Mods 0.7.0 settings
+# Bobbys Mods 0.7.1 settings
 fly_button=right_a
 fly_up_button=left_trigger
 fly_down_button=left_grip
@@ -80,7 +80,7 @@ ironman_acceleration=8
 # Hover prevents falling through the floor while Grip Noclip is held.
 noclip_hover=true
 
-# Bobbys Mods 0.7.0 settings
+# Bobbys Mods 0.7.1 settings
 menu_scale=0.0007
 menu_grip_x=0
 menu_grip_y=0.26

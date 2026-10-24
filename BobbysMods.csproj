@@ -3,6 +3,7 @@
     <TargetFramework>netstandard2.1</TargetFramework>
     <LangVersion>latest</LangVersion>
     <AssemblyName>BobbysMods</AssemblyName>
+    <Version>0.7.1</Version>
     <GamePath Condition="'$(GamePath)' == ''">$(GORILLA_TAG_PATH)</GamePath>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
   </PropertyGroup>
